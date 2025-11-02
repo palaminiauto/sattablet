@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MODULO PRENOTAZIONE LOCALIZZATORI</title>
+<style>
+  body { font-family: Roboto, Arial; margin:0; padding:0; display:flex; justify-content:center; background:#e6f0fa; font-size:16px; }
+  #formWrapper { width:100%; max-width:480px; padding:10px 20px; background:#fff; border-radius:12px; box-shadow:0 2px 12px rgba(0,0,0,0.1); margin:20px 0; }
+  h2{text-align:center; font-size:22px; margin-bottom:10px;} 
+  h4{text-align:center; font-size:16px; color:#555; margin:5px 0; font-weight:normal;}
+  label{display:block; font-weight:bold; margin-top:18px; font-size:16px;text-align: center;}
+  input,select,textarea{width:100%; padding:16px 14px; margin-top:5px; font-size:20px; line-height:1.4; border-radius:8px; border:1px solid #ccc; box-sizing:border-box;display: block;text-align: center;}
+  select{padding:12px 14px; height:auto;}
+  select option{text-align:left;}
+  #compagnia, #lavorazione{text-align:left;}
+  button{background-color:#1a73e8; color:white; border:none; cursor:pointer; margin-top:15px; font-size:20px; padding:18px; border-radius:8px; width:100%;}
+  button:disabled{background-color:#ccc; cursor:not-allowed;}
+  #alertObbligatorio{font-weight:bold; margin-top:5px; color:red; font-size:16px;text-align: center}
+  #alertAnnullamento{display:none; font-weight:bold; margin-top:10px; color:red; font-size:15px; text-align:center; background:#ffe6e6; padding:12px; border-radius:8px; border:2px solid red;}
+  #successOverlay{display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:rgba(255,255,255,0.95); z-index:100; text-align:center; padding:50px 20px; font-size:22px; font-weight:bold; color:green; max-width:90%; max-height:80%; overflow-y:auto; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.2);}
+  .campo-condizionale{display:none;}
+  .avviso-importante{background:#fff3cd; border:2px solid #ffc107; border-radius:8px; padding:15px; margin:20px 0; font-size:14px; line-height:1.6; color:#856404; text-align:center;}
+  .avviso-importante strong{display:block; font-size:16px; margin-bottom:8px; color:#000; font-weight:bold;}
+</style>
+</head>
+<body onload="init()">
+
+<div id="formWrapper">
+  <h2>PRENOTAZIONE APPUNTAMENTO LOCALIZZATORE SATELLITARE ASSICURATIVO o MOVE-IN</h2>
+  <h4>PALAMINI AUTO, Via San Luigi 1/A, Cesano Maderno</h4>
+  
+  <form id="prenotaForm" oninput="aggiornaStatoPrenota(); return false;">
+    <label>EMAIL:</label>
+    <input type="email" id="email" inputmode="email" autocomplete="email" onchange="aggiornaStatoPrenota()">
+
+    <label>TARGA AUTO:</label>
+    <input type="text" id="targa" maxlength="7" onchange="aggiornaStatoPrenota()">
+  
+    <label>NOME E COGNOME ASSICURATO:</label>
+    <input type="text" id="nomeCognome" onchange="aggiornaStatoPrenota()">
+
+    <label>CONTATTO TELEFONICO:</label>
+    <input type="text" id="telefono" inputmode="tel" autocomplete="tel" onchange="aggiornaStatoPrenota()">
+
+    <label>NOME COMPAGNIA ASSICURATIVA o PROVIDER MOVE-IN</label>
+    <select id="compagnia" onchange="aggiornaStatoPrenota()">
+      <option value="" disabled selected>Seleziona...</option>
+    </select>
+
+    <div class="avviso-importante">
+      <strong>IMPORTANTE DA LEGGERE!</strong>
+      Per gli smontaggi: munirsi TASSATIVAMENTE del foglio di installazione per conoscere la posizione del localizzatore all'interno dell'auto (NON serve se si conosce l'ESATTA posizione del localizzatore all'interno dell'auto).
+      <br><br>ATTENZIONE: L'abitacolo e il baule del veicolo devono essere PULITI e PRIVI di oggetti personali.<br><br>
+      NON prenotare tramite questo modulo la SOLA consegna o la riconsegna del localizzatore (ConTe, BeRebel), è sufficiente passare in officina dal lunedì al venerdì 9:00 - 12:15 e 14:30 - 17:30 per il ritiro senza appuntamento. Prenotare solo se si desidera la lavorazione di montaggio o smontaggio.
+    </div>
+
+    <label>LAVORAZIONE RICHIESTA</label>
+    <select id="lavorazione" onchange="aggiornaVisibilita()">
+      <option value="" selected disabled>Seleziona...</option>
+      <option value="montaggio">MONTAGGIO (50 minuti di fermo auto)</option>
+      <option value="smontaggio">SMONTAGGIO (50 minuti di fermo auto)</option>
+      <option value="smontmont">SMONTAGGIO + MONTAGGIO (1,5 ora di fermo auto)</option>
+      <option value="anomalia">ANOMALIA-GUASTO-VERIFICA LOCALIZZATORE (4 ore di fermo auto)</option>
+      <option value="annullamento">ANNULLAMENTO APPUNTAMENTO</option>
+    </select>
+
+    <div id="alertAnnullamento">
+      ⚠️ IMPORTANTE: Scrivere nel campo "note cliente" la data e l'ora dell'appuntamento che si vuole cancellare
+    </div>
+
+    <label>EVENTUALI NOTE CLIENTE:</label>
+    <input type="text" id="notecliente" onchange="aggiornaStatoPrenota()">
+    
+    <div id="wrapperData" class="campo-condizionale">
+      <label>DATA APPUNTAMENTO:</label>
+      <select id="dataAppuntamento" onchange="aggiornaStatoPrenota()">
+        <option value="" selected disabled>Seleziona...</option>
+      </select>
+    </div>
+    
+    <div style="background:#ffe6e6; border:2px solid red; border-radius:8px; padding:12px; margin-top:15px; color:red; font-weight:bold; font-size:15px; text-align:center;">
+      ⏰ Si raccomanda di rispettare l'orario prescelto. Con un ritardo superiore ai 10 minuti l'appuntamento verrà considerato annullato.
+    </div>
+    
+    <button type="button" id="prenota" onclick="invia()" disabled>Prenota</button>
+    <div id="alertObbligatorio">❌ Attenzione: tutti i campi sono obbligatori</div>
+  </form>
+</div>
+
+<div id="successOverlay">APPUNTAMENTO CONFERMATO! Riceverete una copia all'indirizzo email indicato!</div>
+
+<script>
+// ========================================
+// DATABASE COMPAGNIE ASSICURATIVE
+// ========================================
+const COMPAGNIE = [
+  "Unipol-Unipoltech",
+  "Unipol-Octo Telematics",
+  "Linear-Unipoltech",
+  "Arca-Unipoltech",
+  "BeRebel-Unipoltech (costo a carico cliente di 18,30€)",
+  "MoveIN-Viasat (prendere appuntamento 7gg dopo il pagamento a Viasat)",
+  "MoveIN-Octo Telematics",
+  "MoveIN-Unipol",
+  "Groupama-Fairconnect",
+  "Generali-Viasat (prendere appuntamento 7gg dopo emissione polizza)",
+  "Generali-IoTelematics (prendere appuntamento 7gg dopo emissione polizza)",
+  "Generali-Infomobility (prendere appuntamento 7gg dopo emissione polizza)",
+  "Genertel-Jeniot-Viasat (prendere appuntamento 7gg dopo emissione polizza)",
+  "Cattolica-Viasat (prendere appuntamento 7gg dopo emissione polizza)",
+  "Cattolica-Io Telematics (prendere appuntamento 7gg dopo emissione polizza)",
+  "Cattolica-Infomobilty (prendere appuntamento 7gg dopo emissione polizza)",
+  "Tua Ass-Infomobility",
+  "IntesaSanPaolo-FairConnect",
+  "IntesaSanPaolo-Octo Telematics",
+  "Allianz-Octo Telematics",
+  "ConTe-Octo Telematics (costo a carico cliente di 12,20€)"
+];
+
+// ========================================
+// CONFIGURAZIONE API
+// ========================================
+const API_URL = 'https://script.google.com/macros/s/AKfycbwoC5ZEaTAGQru63oUO8DyD0Y20bP5hblqtjFG8CWjudmPM5TfcFZsExi6rs4qyeEsR/exec';
+
+let dateDisponibiliMontaggio = [];
+let dateDisponibiliAnomalia = [];
+
+// ========================================
+// INIZIALIZZAZIONE
+// ========================================
+async function init() {
+  // Popola dropdown compagnie
+  const selectCompagnia = document.getElementById("compagnia");
+  COMPAGNIE.forEach(c => {
+    const option = document.createElement("option");
+    option.value = c;
+    option.textContent = c;
+    selectCompagnia.appendChild(option);
+  });
+
+  // Carica date disponibili
+  try {
+    const response = await fetch(API_URL + '?action=getAllData');
+    const data = await response.json();
+
+    if (data.error) throw new Error(data.error);
+
+    dateDisponibiliMontaggio = data.dateMontaggio || [];
+    dateDisponibiliAnomalia = data.dateAnomalia || [];
+    
+    console.log('Date montaggio:', dateDisponibiliMontaggio);
+    console.log('Date anomalia:', dateDisponibiliAnomalia);
+
+  } catch (error) {
+    console.error('Errore caricamento date:', error);
+    alert('Errore nel caricamento delle date. Riprova più tardi.');
+  }
+}
+
+// ========================================
+// GESTIONE VISIBILITÀ CAMPI
+// ========================================
+function aggiornaVisibilita() {
+  const lavorazione = document.getElementById("lavorazione").value;
+  const wrapperData = document.getElementById("wrapperData");
+  const selectData = document.getElementById("dataAppuntamento");
+  const alertAnnullamento = document.getElementById("alertAnnullamento");
+  
+  // Mostra alert se è annullamento
+  if (lavorazione === "annullamento") {
+    alertAnnullamento.style.display = "block";
+  } else {
+    alertAnnullamento.style.display = "none";
+  }
+  
+  // Mostra data solo per le prime 4 lavorazioni
+  const richiedeData = ["montaggio", "smontaggio", "smontmont", "anomalia"].includes(lavorazione);
+  
+  if (richiedeData) {
+    wrapperData.style.display = "block";
+    
+    // Popola dropdown in base al tipo di lavorazione
+    selectData.innerHTML = '<option value="" selected disabled>Seleziona...</option>';
+    
+    const dateArray = lavorazione === "anomalia" ? dateDisponibiliAnomalia : dateDisponibiliMontaggio;
+    
+    dateArray.forEach(d => {
+      const option = document.createElement("option");
+      option.value = d;
+      option.textContent = d;
+      selectData.appendChild(option);
+    });
+  } else {
+    wrapperData.style.display = "none";
+    selectData.value = "";
+  }
+  
+  aggiornaStatoPrenota();
+}
+
+// ========================================
+// VALIDAZIONE FORM
+// ========================================
+function aggiornaStatoPrenota() {
+  const btn = document.getElementById("prenota");
+  const lavorazione = document.getElementById("lavorazione").value;
+  const richiedeData = ["montaggio", "smontaggio", "smontmont", "anomalia"].includes(lavorazione);
+  
+  // Campi sempre obbligatori
+  const campiBase = ["email", "targa", "nomeCognome", "telefono", "compagnia"].every(
+    id => document.getElementById(id).value.trim() !== ""
+  );
+  
+  const lavorazioneValida = lavorazione !== "";
+  
+  // Data obbligatoria solo se richiesta
+  const dataValida = !richiedeData || document.getElementById("dataAppuntamento").value !== "";
+  
+  // Note cliente obbligatorie se annullamento
+  const noteValide = lavorazione !== "annullamento" || document.getElementById("notecliente").value.trim() !== "";
+  
+  const tuttiCampiOk = campiBase && lavorazioneValida && dataValida && noteValide;
+  
+  btn.disabled = !tuttiCampiOk;
+  document.getElementById("alertObbligatorio").style.display = tuttiCampiOk ? "none" : "block";
+}
+
+// ========================================
+// INVIO DATI
+// ========================================
+async function invia() {
+  const btn = document.getElementById("prenota");
+  btn.disabled = true;
+  btn.textContent = "Invio in corso, attendere...";
+
+  const dati = {
+    email: document.getElementById("email").value.trim(),
+    targa: document.getElementById("targa").value.trim().toUpperCase(),
+    nomeCognome: document.getElementById("nomeCognome").value.trim(),
+    telefono: document.getElementById("telefono").value.trim(),
+    compagnia: document.getElementById("compagnia").value,
+    lavorazione: document.getElementById("lavorazione").value,
+    notecliente: document.getElementById("notecliente").value.trim(),
+    dataAppuntamento: document.getElementById("dataAppuntamento").value
+  };
+
+  console.log('Invio dati:', dati);
+
+  fetch(API_URL, {
+    method: 'POST',
+    body: JSON.stringify({ action: 'salvaPrenotazione', dati: dati })
+  })
+  .then(response => response.json())
+  .then(result => console.log('Risultato:', result))
+  .catch(error => console.error('Errore invio dati:', error));
+
+  setTimeout(() => {
+    document.getElementById("formWrapper").style.display = "none";
+    document.getElementById("successOverlay").style.display = "block";
+  }, 2500);
+}
+</script>
+</body>
+</html>

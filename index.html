@@ -1,183 +1,49 @@
 <!DOCTYPE html>
-<html>
+<html lang="it">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Prenotazione Localizzatore</title>
+<title>Prenota Appuntamento</title>
 <style>
   body {
     font-family: Arial, sans-serif;
-    background: #e6f0fa;
+    background: linear-gradient(135deg, #dbeafe, #93c5fd);
+    height: 100vh;
     margin: 0;
-    padding: 0;
     display: flex;
     justify-content: center;
+    align-items: center;
   }
-  #formWrapper {
-    background: #fff;
-    padding: 15px 20px;
-    border-radius: 10px;
-    max-width: 480px;
-    width: 100%;
-    margin: 20px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  }
-  h2 {
-    text-align: center;
-    font-size: 20px;
-    margin-bottom: 10px;
-  }
-  h4 {
-    text-align: center;
-    font-size: 14px;
-    color: #555;
-    margin: 5px 0 15px 0;
-  }
-  label {
-    display: block;
-    font-weight: bold;
-    margin-top: 15px;
-    text-align: center;
-  }
-  input, textarea {
-    width: 100%;
-    padding: 10px;
-    margin-top: 5px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    box-sizing: border-box;
-    text-align: center;
-  }
-  textarea {
-    resize: vertical;
-  }
+
   button {
-    width: 100%;
-    padding: 12px;
-    background: #1a73e8;
+    background-color: #1a73e8;
     color: white;
+    font-size: 32px;
+    font-weight: bold;
+    padding: 50px 80px;
     border: none;
-    border-radius: 6px;
-    font-size: 18px;
+    border-radius: 25px;
     cursor: pointer;
-    margin-top: 20px;
-  }
-  button:disabled {
-    background: #ccc;
-  }
-  #alertObbligatorio {
     text-align: center;
-    color: red;
-    font-weight: bold;
-    margin-top: 8px;
-    display: none;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    transition: all 0.2s ease-in-out;
   }
-  #successOverlay {
-    display: none;
-    text-align: center;
-    color: green;
-    font-size: 20px;
-    font-weight: bold;
-    margin-top: 30px;
+
+  button:hover {
+    background-color: #155ec0;
+    transform: scale(1.05);
   }
 </style>
 </head>
-
 <body>
-<div id="formWrapper">
-  <h2>PRENOTAZIONE APPUNTAMENTO LOCALIZZATORE</h2>
-  <h4>PALAMINI AUTO - Cesano Maderno</h4>
 
-  <form id="prenotaForm">
-    <label>EMAIL:</label>
-    <input type="email" id="email" onkeyup="aggiornaStatoPrenota()">
+  <button onclick="vai()">PREMI QUI PER PRENDERE APPUNTAMENTO</button>
 
-    <label>TARGA AUTO:</label>
-    <input type="text" id="targa" maxlength="7" onkeyup="aggiornaStatoPrenota()">
-
-    <label>NOME E COGNOME ASSICURATO:</label>
-    <input type="text" id="nomeCognome" onkeyup="aggiornaStatoPrenota()">
-
-    <label>CONTATTO TELEFONICO:</label>
-    <input type="text" id="telefono" onkeyup="aggiornaStatoPrenota()">
-
-    <label>NOME COMPAGNIA ASSICURATIVA o PROVIDER MOVE-IN:</label>
-    <input type="text" id="compagnia" onkeyup="aggiornaStatoPrenota()">
-
-    <label>LAVORAZIONE RICHIESTA (es. montaggio, smontaggio...):</label>
-    <input type="text" id="lavorazione" onkeyup="aggiornaStatoPrenota()">
-
-    <label>DATA APPUNTAMENTO:</label>
-    <input type="text" id="dataAppuntamento" placeholder="es. 15/11/2025 ore 10:30" onkeyup="aggiornaStatoPrenota()">
-
-    <label>NOTE CLIENTE:</label>
-    <textarea id="notecliente" rows="3" onkeyup="aggiornaStatoPrenota()"></textarea>
-
-    <button type="button" id="prenota" onclick="invia()" disabled>Prenota</button>
-    <div id="alertObbligatorio">❌ Tutti i campi sono obbligatori</div>
-  </form>
-
-  <div id="successOverlay">✅ Appuntamento confermato! Riceverete una copia via email.</div>
-</div>
-
-<script>
-var API_URL = "https://script.google.com/macros/s/AKfycbwoC5ZEaTAGQru63oUO8DyD0Y20bP5hblqtjFG8CWjudmPM5TfcFZsExi6rs4qyeEsR/exec";
-
-function aggiornaStatoPrenota() {
-  var campi = ["email","targa","nomeCognome","telefono","compagnia","lavorazione","dataAppuntamento"];
-  var tuttiPieni = true;
-  for (var i = 0; i < campi.length; i++) {
-    var val = document.getElementById(campi[i]).value;
-    if (!val || val.replace(/\s/g,"") === "") {
-      tuttiPieni = false;
-      break;
+  <script>
+    function vai() {
+      window.location.href = "https://palaminiauto.github.io/sat/";
     }
-  }
-  var btn = document.getElementById("prenota");
-  var alert = document.getElementById("alertObbligatorio");
-  if (tuttiPieni) {
-    btn.disabled = false;
-    alert.style.display = "none";
-  } else {
-    btn.disabled = true;
-    alert.style.display = "block";
-  }
-}
+  </script>
 
-function invia() {
-  var dati = {
-    email: document.getElementById("email").value.trim(),
-    targa: document.getElementById("targa").value.trim().toUpperCase(),
-    nomeCognome: document.getElementById("nomeCognome").value.trim(),
-    telefono: document.getElementById("telefono").value.trim(),
-    compagnia: document.getElementById("compagnia").value.trim(),
-    lavorazione: document.getElementById("lavorazione").value.trim(),
-    notecliente: document.getElementById("notecliente").value.trim(),
-    dataAppuntamento: document.getElementById("dataAppuntamento").value.trim()
-  };
-
-  var btn = document.getElementById("prenota");
-  btn.disabled = true;
-  btn.innerHTML = "Invio in corso...";
-
-  var xhr = new XMLHttpRequest();
-  xhr.open("POST", API_URL, true);
-  xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-  xhr.onreadystatechange = function() {
-    if (xhr.readyState === 4) {
-      btn.innerHTML = "Prenota";
-      if (xhr.status === 200) {
-        document.getElementById("prenotaForm").style.display = "none";
-        document.getElementById("successOverlay").style.display = "block";
-      } else {
-        alert("Errore durante l'invio. Riprova più tardi.");
-        btn.disabled = false;
-      }
-    }
-  };
-  xhr.send(JSON.stringify({ action: "salvaPrenotazione", dati: dati }));
-}
-</script>
 </body>
 </html>
